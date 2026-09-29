@@ -1,0 +1,30 @@
+{
+  "name": "antigravity-openai-endpoint",
+  "version": "1.0.0",
+  "description": "OpenAI-compatible local API server for Google Antigravity (Claude, Gemini, GPT-OSS)",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "login": "bun src/login.ts",
+    "build": "tsc",
+    "test": "bun test-endpoint.ts",
+    "start:node": "node --loader ts-node/esm src/index.ts"
+  },
+  "keywords": [
+    "openai",
+    "antigravity",
+    "gemini",
+    "claude",
+    "jan",
+    "local-ai",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
