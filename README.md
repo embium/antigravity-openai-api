@@ -28,19 +28,20 @@ This allows you to use your Google Antigravity subscription (Claude Sonnet 4.6, 
 ### 1. Start the Server
 
 Using **Bun** (recommended):
+
 ```bash
-cd endpoint
 bun run start
 ```
 
 Or using **Node.js**:
+
 ```bash
-cd endpoint
 npm run build
 node dist/index.js
 ```
 
 By default, the server runs at:
+
 ```
 http://127.0.0.1:8042/v1
 ```
@@ -50,9 +51,11 @@ http://127.0.0.1:8042/v1
 If you have already logged into Antigravity in Pi (`/login antigravity`), **no action is required** — your credentials will be discovered and refreshed automatically!
 
 To log in from scratch:
+
 ```bash
 bun run login
 ```
+
 This opens your browser to authenticate with Google, captures the OAuth token, and saves it locally. You can also trigger login by visiting `http://localhost:8042/login` in your browser.
 
 ---
@@ -67,7 +70,7 @@ This opens your browser to authenticate with Google, captures the OAuth token, a
 4. Enter the following details:
    - **Provider Name**: `Antigravity`
    - **Base URL**: `http://127.0.0.1:8042/v1`
-   - **API Key**: `sk-antigravity` *(any dummy key works)*
+   - **API Key**: `sk-antigravity` _(any dummy key works)_
 5. Click **Save**.
 6. When starting a chat, pick any Antigravity model from the dropdown (or type one below).
 
@@ -77,18 +80,19 @@ This opens your browser to authenticate with Google, captures the OAuth token, a
 
 You can use standard Antigravity model names or convenient aliases:
 
-| Model ID | Details | Thinking / Reasoning |
-| :--- | :--- | :--- |
-| `claude-sonnet-4-6` | Claude Sonnet 4.6 | Supported |
-| `claude-3-7-sonnet` | Alias for Claude Sonnet 4.6 | Supported |
-| `claude-opus-4-6` | Claude Opus 4.6 | Supported |
-| `gemini-3.7-flash` | Gemini 3.7 Flash | Supported |
-| `gemini-3.8-flash` | Gemini 3.8 Flash | Supported |
-| `gemini-3.6-flash` | Gemini 3.6 Flash | Supported |
-| `gemini-pro` | Gemini 3.1 Pro Agent | Supported |
-| `gpt-oss-120b` | GPT-OSS 120B | Supported |
+| Model ID            | Details                     | Thinking / Reasoning |
+| :------------------ | :-------------------------- | :------------------- |
+| `claude-sonnet-4-6` | Claude Sonnet 4.6           | Supported            |
+| `claude-3-7-sonnet` | Alias for Claude Sonnet 4.6 | Supported            |
+| `claude-opus-4-6`   | Claude Opus 4.6             | Supported            |
+| `gemini-3.7-flash`  | Gemini 3.7 Flash            | Supported            |
+| `gemini-3.8-flash`  | Gemini 3.8 Flash            | Supported            |
+| `gemini-3.6-flash`  | Gemini 3.6 Flash            | Supported            |
+| `gemini-pro`        | Gemini 3.1 Pro Agent        | Supported            |
+| `gpt-oss-120b`      | GPT-OSS 120B                | Supported            |
 
 You can also use fine-grained runtime IDs directly, such as:
+
 - `gemini-3.7-flash-high`
 - `gemini-3.7-flash-medium`
 - `gemini-3.7-flash-low`
@@ -100,28 +104,31 @@ You can also use fine-grained runtime IDs directly, such as:
 
 ## Environment Variables
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `PORT` | `8042` | Port for the HTTP server |
-| `HOST` | `127.0.0.1` | Host address to bind to |
-| `ANTIGRAVITY_REFRESH_TOKEN` | *(auto-detected)* | Custom Google OAuth refresh token |
-| `ANTIGRAVITY_PROJECT_ID` | `aicode-consumers` | Cloud Code Assist project ID |
+| Variable                    | Default            | Description                       |
+| :-------------------------- | :----------------- | :-------------------------------- |
+| `PORT`                      | `8042`             | Port for the HTTP server          |
+| `HOST`                      | `127.0.0.1`        | Host address to bind to           |
+| `ANTIGRAVITY_REFRESH_TOKEN` | _(auto-detected)_  | Custom Google OAuth refresh token |
+| `ANTIGRAVITY_PROJECT_ID`    | `aicode-consumers` | Cloud Code Assist project ID      |
 
 ---
 
 ## Verifying with curl
 
 Test that the endpoint is running:
+
 ```bash
 curl http://127.0.0.1:8042/health
 ```
 
 List models:
+
 ```bash
 curl http://127.0.0.1:8042/v1/models
 ```
 
 Send a test chat completion:
+
 ```bash
 curl http://127.0.0.1:8042/v1/chat/completions \
   -H "Content-Type: application/json" \
