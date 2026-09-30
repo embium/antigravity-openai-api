@@ -35,7 +35,10 @@ export const CLIENT_ID =
 
 export const CLIENT_SECRET =
   process.env.ANTIGRAVITY_CLIENT_SECRET ||
-  Buffer.from("R09DU1BYLUs1OEZXUjQ" + "4NkxkTEoxbUxCOHNYQzR6NnFEQWY=", "base64").toString("utf-8");
+  Buffer.from(
+    "R09DU1BYLUs1OEZXUjQ" + "4NkxkTEoxbUxCOHNYQzR6NnFEQWY=",
+    "base64",
+  ).toString("utf-8");
 
 export const DEFAULT_PROJECT_ID = "aicode-consumers";
 
@@ -54,14 +57,8 @@ function getHomeDir(): string {
 }
 
 /** Possible file locations for storing / loading credentials */
-function getCredentialLocations(): string[] {
-  const home = getHomeDir();
-  return [
-    path.resolve(process.cwd(), "credentials.json"),
-    path.resolve(process.cwd(), "endpoint", "credentials.json"),
-    path.resolve(home, ".antigravity", "credentials.json"),
-    path.resolve(home, ".pi", "agent", "auth.json"),
-  ];
+function getCredentialLocations(): string {
+  return path.resolve(process.cwd(), "credentials.json");
 }
 
 interface LoadedCredentials {
@@ -73,6 +70,7 @@ interface LoadedCredentials {
 /** Load credentials from env or files */
 export function loadCredentials(): LoadedCredentials | null {
   // Check env vars
+
   if (process.env.ANTIGRAVITY_REFRESH_TOKEN) {
     return {
       creds: {
@@ -88,7 +86,9 @@ export function loadCredentials(): LoadedCredentials | null {
 
   if (process.env.ANTIGRAVITY_CREDENTIALS) {
     try {
-      const parsed = JSON.parse(process.env.ANTIGRAVITY_CREDENTIALS) as AntigravityCredentials;
+      const parsed = JSON.parse(
+        process.env.ANTIGRAVITY_CREDENTIALS,
+      ) as AntigravityCredentials;
       if (parsed.refresh) return { creds: parsed };
     } catch {
       // ignore parse failure
@@ -96,32 +96,22 @@ export function loadCredentials(): LoadedCredentials | null {
   }
 
   // Check file locations
-  for (const filePath of getCredentialLocations()) {
-    try {
-      if (!fs.existsSync(filePath)) continue;
-      const content = fs.readFileSync(filePath, "utf-8");
-      const parsed = JSON.parse(content);
+  const filePath = getCredentialLocations();
 
-      // Check if it's Pi's auth.json
-      if (filePath.endsWith("auth.json") && parsed.antigravity?.refresh) {
-        return {
-          creds: parsed.antigravity as AntigravityCredentials,
-          sourcePath: filePath,
-          isPiAuthJson: true,
-        };
-      }
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const content = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(content);
 
-      // Check direct credentials.json format
-      if (parsed.refresh) {
-        return {
-          creds: parsed as AntigravityCredentials,
-          sourcePath: filePath,
-          isPiAuthJson: false,
-        };
-      }
-    } catch {
-      // Continue to next candidate
+    // Check direct credentials.json format
+    if (parsed.refresh) {
+      return {
+        creds: parsed as AntigravityCredentials,
+        sourcePath: filePath,
+      };
     }
+  } catch {
+    // Continue to next candidate
   }
 
   return null;
@@ -141,12 +131,20 @@ export function saveCredentials(
         ...parsed.antigravity,
         ...updated,
       };
-      fs.writeFileSync(loaded.sourcePath, JSON.stringify(parsed, null, 2), "utf-8");
+      fs.writeFileSync(
+        loaded.sourcePath,
+        JSON.stringify(parsed, null, 2),
+        "utf-8",
+      );
       return;
     }
 
     if (loaded?.sourcePath) {
-      fs.writeFileSync(loaded.sourcePath, JSON.stringify(updated, null, 2), "utf-8");
+      fs.writeFileSync(
+        loaded.sourcePath,
+        JSON.stringify(updated, null, 2),
+        "utf-8",
+      );
       return;
     }
 
@@ -175,7 +173,9 @@ export async function refreshAccessToken(
 
   if (!res.ok) {
     const errorText = await res.text();
-    throw new Error(`Google OAuth token refresh failed (${res.status}): ${errorText}`);
+    throw new Error(
+      `Google OAuth token refresh failed (${res.status}): ${errorText}`,
+    );
   }
 
   const data = (await res.json()) as {
@@ -198,7 +198,10 @@ export async function refreshAccessToken(
 let inFlightRefresh: Promise<AntigravityCredentials> | null = null;
 
 /** Get a valid, non-expired access token and project ID */
-export async function getValidAuth(): Promise<{ accessToken: string; projectId: string }> {
+export async function getValidAuth(): Promise<{
+  accessToken: string;
+  projectId: string;
+}> {
   const loaded = loadCredentials();
   if (!loaded?.creds?.refresh) {
     throw new Error(
@@ -209,7 +212,10 @@ export async function getValidAuth(): Promise<{ accessToken: string; projectId: 
   let creds = loaded.creds;
 
   // Check if access token is present and valid for at least 2 minutes
-  const isExpiring = !creds.access || !creds.expires || creds.expires <= Date.now() + 2 * 60 * 1000;
+  const isExpiring =
+    !creds.access ||
+    !creds.expires ||
+    creds.expires <= Date.now() + 2 * 60 * 1000;
 
   if (isExpiring) {
     if (!inFlightRefresh) {
@@ -240,13 +246,16 @@ export async function performOAuthLogin(): Promise<AntigravityCredentials> {
     let settled = false;
     let server: Server;
 
-    const timeout = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        server?.close();
-        reject(new Error("Login timed out after 5 minutes"));
-      }
-    }, 5 * 60 * 1000);
+    const timeout = setTimeout(
+      () => {
+        if (!settled) {
+          settled = true;
+          server?.close();
+          reject(new Error("Login timed out after 5 minutes"));
+        }
+      },
+      5 * 60 * 1000,
+    );
 
     server = createServer(async (req, res) => {
       const url = new URL(req.url || "", REDIRECT_URI);
@@ -301,15 +310,20 @@ export async function performOAuthLogin(): Promise<AntigravityCredentials> {
         };
 
         if (!tokenData.refresh_token) {
-          throw new Error("No refresh token received. Please grant offline access.");
+          throw new Error(
+            "No refresh token received. Please grant offline access.",
+          );
         }
 
         // Get user info
         let email: string | undefined;
         try {
-          const userRes = await fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
-            headers: { Authorization: `Bearer ${tokenData.access_token}` },
-          });
+          const userRes = await fetch(
+            "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
+            {
+              headers: { Authorization: `Bearer ${tokenData.access_token}` },
+            },
+          );
           if (userRes.ok) {
             const userData = (await userRes.json()) as { email?: string };
             email = userData.email;
